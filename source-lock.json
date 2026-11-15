@@ -8,6 +8,6 @@
   },
   "clang_directory": "clang-r547379",
   "patches": {
-    "patches/0001-embed-the-actual-build-config.patch": "3b4ce3a04b872be6586663178e3e50d7d92047ce7c5dfdff9ec0c5d800300f88"
+    "patches/0001-embed-the-actual-build-config.patch": "7041dbecf9431d701b1f7d33d5e09ffabb74dd0a0d3172045f6a9e34974120aa"
   }
 }

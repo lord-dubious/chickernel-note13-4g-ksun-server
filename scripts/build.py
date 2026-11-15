@@ -41,8 +41,8 @@ def prepare_source(source):
             patch = (ROOT / relative).resolve()
             if ROOT not in patch.parents or digest(patch) != checksum:
                 raise ValueError(f'Patch identity mismatch: {relative}')
-            run('git', 'apply', '--cached', '--check', patch, cwd=source, env=patch_env)
-            run('git', 'apply', '--cached', patch, cwd=source, env=patch_env)
+            run('git', 'apply', '--unidiff-zero', '--cached', '--check', patch, cwd=source, env=patch_env)
+            run('git', 'apply', '--unidiff-zero', '--cached', patch, cwd=source, env=patch_env)
             patches.append(patch)
         expected = run('git', 'diff', '--cached', '--binary', 'HEAD', cwd=source,
                        env=patch_env, capture=True)
@@ -51,8 +51,8 @@ def prepare_source(source):
             raise ValueError('Source contains changes outside the locked patch set')
         if not actual:
             for patch in patches:
-                run('git', 'apply', '--check', patch, cwd=source)
-                run('git', 'apply', patch, cwd=source)
+                run('git', 'apply', '--unidiff-zero', '--check', patch, cwd=source)
+                run('git', 'apply', '--unidiff-zero', patch, cwd=source)
         if run('git', 'diff', '--binary', 'HEAD', cwd=source, capture=True) != expected:
             raise ValueError('Prepared source does not match the locked patch set')
 

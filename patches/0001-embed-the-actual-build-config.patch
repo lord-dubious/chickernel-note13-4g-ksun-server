@@ -1,9 +1,6 @@
 diff --git a/kernel/Makefile b/kernel/Makefile
 --- a/kernel/Makefile
 +++ b/kernel/Makefile
-@@ -149,4 +149,4 @@
- filechk_cat = cat $<
- 
+@@ -151 +151 @@
 -$(obj)/config_data: arch/arm64/configs/khaje-stock_defconfig FORCE
 +$(obj)/config_data: $(KCONFIG_CONFIG) FORCE
- 	$(call filechk,cat)
