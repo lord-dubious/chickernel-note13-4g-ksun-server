@@ -23,6 +23,15 @@ Sources:
 This dump is reference evidence, not proof of the connected phone's firmware.
 Its `sapphiren` overlay contains `st,st21nfc`; `sapphire` is the non-NFC variant.
 
+A compile of the corrected server configuration produced symbol-version
+mismatches against these reference modules (18 for `spidev.ko`, 47 for
+`spi-msm-geni.ko`, including `module_layout`; the latter also had two imports
+outside the kernel export table). This candidate must not be assumed compatible
+with those reference modules. The connected phone's modules still need to be
+collected and checked. Do not force-load a mismatched module or remove version
+checks to conceal the problem. Use `scripts/check_module_versions.py` to compare
+the actual module copies with the build's exported symbol table without loading.
+
 ## Integration choice
 
 The native fragment preserves SPI and adds generic LIRC capabilities, but does

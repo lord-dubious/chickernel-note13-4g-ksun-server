@@ -11,7 +11,7 @@ import subprocess
 import sys
 import zipfile
 
-from verify_kernel import verify
+from verify_kernel import parse_config, verify
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCK = json.loads((ROOT / 'source-lock.json').read_text())
@@ -96,12 +96,16 @@ def main():
     print(json.dumps(config_receipt, indent=2))
     if args.config_only:
         return
+    if parse_config((out / '.config').read_text()).get('CONFIG_DEBUG_INFO_BTF') == 'y':
+        if not shutil.which('pahole', path=env['PATH']):
+            parser.error('CONFIG_DEBUG_INFO_BTF requires pahole (install the pahole/dwarves package)')
     run(*make, f'-j{args.jobs}', 'Image', env=env)
     image = out / 'arch/arm64/boot/Image'
     receipt = verify(image, 'image', fragments, out / '.config')
     dist.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(image, dist / 'Image')
     shutil.copyfile(out / '.config', dist / 'kernel.config')
+    shutil.copyfile(out / 'vmlinux.symvers', dist / 'vmlinux.symvers')
     if args.template:
         # Only the audited historical stable-7 layout is supported. Its old
         # Image is untrusted and always replaced; other installer bytes persist.
@@ -127,6 +131,7 @@ def main():
                   'fragments_sha256': {str(p.relative_to(ROOT)) if ROOT in p.parents else str(p):
                                        digest(p) for p in fragments},
                   'image_verification': receipt,
+                  'module_compatibility': 'NOT VERIFIED against the connected device; compare its actual modules with vmlinux.symvers',
                   'hardware_validation': 'NOT RUN; no flash authorization is inferred by this script'}
     (dist / 'build-provenance.json').write_text(json.dumps(provenance, indent=2) + '\n')
     files = sorted(p for p in dist.iterdir() if p.is_file())

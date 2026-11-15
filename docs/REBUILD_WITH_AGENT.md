@@ -3,7 +3,8 @@
 ## Inputs
 
 - Python 3.10+, Git, make, gcc/g++, flex, bison, bc, OpenSSL/ELF development
-  headers and the matching AOSP LLVM toolchain.
+  headers, `pahole` (BTF generation), `kmod` (read-only module checks) and
+  the matching AOSP LLVM toolchain.
 - Kernel repository, exact commit and submodules from `../source-lock.json`.
 - AOSP `clang-r547379` selected by the pinned source's `build.config.constants`.
   It is available from the official
@@ -16,6 +17,8 @@
 
 Use a Linux filesystem for the source/build. Windows checkouts can fail on
 Linux filenames such as `aux.c`. Run commands below from this reference repo.
+BTF generation exceeded 8 GiB of combined RAM/swap in the local build; provide
+sufficient memory/swap and disk space for the unstripped kernel and toolchain.
 
 ## Fetch the pinned full source
 
@@ -55,7 +58,7 @@ Omit `--template` to build only the raw Image and evidence. The script probes
 the compiler before building, stops if any requested setting is lost, builds
 `Image`, checks embedded IKCONFIG against the build `.config`, replaces only
 `Image.gz` in the template, and verifies the packaged kernel again. It writes
-`Image`, `kernel.config`, optional ZIP, `build-provenance.json` and fresh
+`Image`, `kernel.config`, `vmlinux.symvers`, optional ZIP, `build-provenance.json` and fresh
 `SHA256SUMS.txt`. A failed run is not a release; keep its logs and inspect it.
 
 ## Verify a transferred artifact
@@ -69,6 +72,17 @@ python3 scripts/verify_kernel.py /path/to/kernel.zip --kind zip   --fragment "$S
 Use `--kind image` for Image/Image.gz or `--kind config` for a saved config.
 A checksum only identifies bytes. It does not replace feature verification,
 module/KMI checks, backups or [device testing](FLASHING.md).
+
+Compare copies of the phone's modules before installation (this does not load them):
+
+```bash
+python3 scripts/check_module_versions.py --symvers /path/to/vmlinux.symvers \
+  /path/to/phone/spidev.ko /path/to/phone/spi-msm-geni.ko
+```
+
+Supply matching provider-module symbol tables with extra `--symvers` arguments
+when needed. A mismatch exits 1; unresolved imports exit 2. Matching imported
+CRCs is only one prerequisite, not a complete ABI, CFI, signature or boot check.
 
 The old Bazel snippet and shell config are legacy integration references,
 not the verified path described here. CI resolves configuration and tests the
