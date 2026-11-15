@@ -1,0 +1,13 @@
+{
+  "repository": "https://github.com/chickendrop89/device_xiaomi_gemstones-kernel.git",
+  "branch": "android13-5.15-lts",
+  "commit": "465df0508d2c6d987aa6ad59b8e3930023f5b944",
+  "submodules": {
+    "KernelSU-Next": "9857771aafa73c597981f279b374df744e55a030",
+    "Baseband-guard": "c357403da9d75d1566e8bc4e53335ab2322d0977"
+  },
+  "clang_directory": "clang-r547379",
+  "patches": {
+    "patches/0001-embed-the-actual-build-config.patch": "7041dbecf9431d701b1f7d33d5e09ffabb74dd0a0d3172045f6a9e34974120aa"
+  }
+}

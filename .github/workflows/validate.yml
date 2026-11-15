@@ -1,0 +1,34 @@
+name: Configuration and artifact tooling
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  configuration:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test artifact rejection and config checks
+        run: |
+          python3 -m unittest discover -s tests -v
+          python3 -m compileall -q scripts
+          git diff --check
+          bash -n reference-source/build.config.gki.aarch64.chickernel.ksun.server
+      - name: Install configuration tools
+        run: sudo apt-get update -qq && sudo apt-get install -y build-essential flex bison clang lld llvm libssl-dev libelf-dev bc
+      - name: Fetch pinned upstream and submodules
+        run: |
+          source_dir="$RUNNER_TEMP/chickernel-source"
+          git init "$source_dir"
+          git -C "$source_dir" remote add origin "$(python3 -c 'import json; print(json.load(open("source-lock.json"))["repository"])')"
+          git -C "$source_dir" fetch --depth=1 origin "$(python3 -c 'import json; print(json.load(open("source-lock.json"))["commit"])')"
+          git -C "$source_dir" checkout --detach FETCH_HEAD
+          git -C "$source_dir" submodule update --init --depth=1
+      - name: Resolve and verify every fragment setting
+        run: |
+          python3 scripts/build.py --source "$RUNNER_TEMP/chickernel-source" --out "$RUNNER_TEMP/chickernel-config" --config-only
+          python3 scripts/build.py --source "$RUNNER_TEMP/chickernel-source" --out "$RUNNER_TEMP/chickernel-config" --config-only

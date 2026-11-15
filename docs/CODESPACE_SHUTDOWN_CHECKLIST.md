@@ -1,26 +1,15 @@
-# Codespace shutdown checklist
+# Preserve a build before deleting a workspace
 
-## What is already safe on GitHub
-- `README.md`
-- `docs/FEATURES.md`
-- `docs/FLASHING.md`
-- `docs/BUILD_RESULT.md`
-- `SHA256SUMS.txt`
-- `artifacts/README.md`
-- `patches/ksun-server-feature-pack.patch`
+1. Commit source/config/build-tool changes and record the exact commit.
+2. Copy the complete new distribution directory, including `Image`, optional
+   ZIP, `kernel.config`, `vmlinux.symvers`, `build-provenance.json` and generated
+   `SHA256SUMS.txt`.
+3. Verify those generated hashes after transfer and rerun `verify_kernel.py`
+   against the transferred Image or ZIP and the actual build config.
+4. Preserve module/KMI and device-test logs separately when available.
 
-## What is NOT stored in this GitHub repo yet
-The actual built binary artifacts are still local to the Codespace:
-- `/workspaces/chickernel-full/chickernel-stable-7-ksun-server.zip`
-- `/workspaces/chickernel-full/common/out/thin-build/arch/arm64/boot/Image`
-
-## Must-do before deleting the Codespace
-Download at least this file:
-- `chickernel-stable-7-ksun-server.zip`
-
-Recommended extra backups:
-- `/workspaces/chickernel-note13-4g-ksun-server.bundle`
-- `/workspaces/chickernel-note13-4g-ksun-server.tar.gz`
-
-## Verification
-Expected checksums are in `SHA256SUMS.txt`.
+The historical root checksum file does not validate a replacement build.
+No previous Codespace's existence, retained binaries or shutdown state is
+asserted by this repository. The old placeholder patch was not an applicable
+patch and has been removed; the checked build tools and reference fragments
+are the current source of build instructions.
