@@ -41,6 +41,16 @@ class ArtifactVerificationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'differs from build .config'):
             verify(image, 'image', [self.fragment], reference)
 
+    def test_generated_ikconfig_input_must_match_the_build(self):
+        reference = self.root / '.config'
+        reference.write_text(self.config)
+        compressed = self.root / 'config_data.gz'
+        compressed.write_bytes(gzip.compress(self.config.encode()))
+        verify(compressed, 'gzip-config', [self.fragment], reference)
+        compressed.write_bytes(gzip.compress(b'# CONFIG_KSU is not set\n'))
+        with self.assertRaisesRegex(ValueError, 'differs from build .config'):
+            verify(compressed, 'gzip-config', [self.fragment], reference)
+
     def test_ambiguous_or_truncated_embedded_config_is_rejected(self):
         with self.assertRaisesRegex(ValueError, 'found 2'):
             embedded_config(self.image(self.config) * 2)

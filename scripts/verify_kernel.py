@@ -53,6 +53,8 @@ def read_config(path, kind):
     path = Path(path)
     if kind == 'config':
         return path.read_text()
+    if kind == 'gzip-config':
+        return gzip.decompress(path.read_bytes()).decode('utf-8')
     if kind == 'zip':
         with zipfile.ZipFile(path) as archive:
             images = [n for n in archive.namelist() if n in ('Image', 'Image.gz')]
@@ -74,7 +76,7 @@ def verify(path, kind, fragments, reference=None):
         different = [key for key in sorted(actual.keys() | baseline.keys())
                      if actual.get(key, 'n') != baseline.get(key, 'n')]
         if different:
-            raise ValueError('Embedded config differs from build .config: ' + ', '.join(different))
+            raise ValueError('Artifact config differs from build .config: ' + ', '.join(different))
     if failures:
         raise ValueError('Unsatisfied configuration: ' + json.dumps(failures, sort_keys=True))
     return {'file': str(Path(path).resolve()), 'kind': kind,
@@ -85,7 +87,7 @@ def verify(path, kind, fragments, reference=None):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('artifact', type=Path)
-    parser.add_argument('--kind', choices=['config', 'image', 'zip'], required=True)
+    parser.add_argument('--kind', choices=['config', 'gzip-config', 'image', 'zip'], required=True)
     parser.add_argument('--fragment', type=Path, action='append', required=True)
     parser.add_argument('--reference-config', type=Path)
     args = parser.parse_args()

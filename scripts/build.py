@@ -9,6 +9,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import tempfile
 import zipfile
 
 from verify_kernel import verify
@@ -25,6 +26,35 @@ def run(*args, cwd=None, env=None, capture=False, input=None):
 
 def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+
+def prepare_source(source):
+    """Permit only the exact patch set computed against the pinned source tree."""
+    run('git', 'diff', '--cached', '--quiet', 'HEAD', cwd=source)
+    if run('git', 'ls-files', '--others', '--exclude-standard', cwd=source, capture=True).strip():
+        raise ValueError('Remove unrelated untracked source files before building')
+    with tempfile.TemporaryDirectory(prefix='chickernel-index-') as temp:
+        patch_env = os.environ | {'GIT_INDEX_FILE': str(Path(temp) / 'index')}
+        run('git', 'read-tree', 'HEAD', cwd=source, env=patch_env)
+        patches = []
+        for relative, checksum in LOCK.get('patches', {}).items():
+            patch = (ROOT / relative).resolve()
+            if ROOT not in patch.parents or digest(patch) != checksum:
+                raise ValueError(f'Patch identity mismatch: {relative}')
+            run('git', 'apply', '--cached', '--check', patch, cwd=source, env=patch_env)
+            run('git', 'apply', '--cached', patch, cwd=source, env=patch_env)
+            patches.append(patch)
+        expected = run('git', 'diff', '--cached', '--binary', 'HEAD', cwd=source,
+                       env=patch_env, capture=True)
+        actual = run('git', 'diff', '--binary', 'HEAD', cwd=source, capture=True)
+        if actual and actual != expected:
+            raise ValueError('Source contains changes outside the locked patch set')
+        if not actual:
+            for patch in patches:
+                run('git', 'apply', '--check', patch, cwd=source)
+                run('git', 'apply', patch, cwd=source)
+        if run('git', 'diff', '--binary', 'HEAD', cwd=source, capture=True) != expected:
+            raise ValueError('Prepared source does not match the locked patch set')
 
 
 def main():
@@ -63,11 +93,12 @@ def main():
     head = run('git', 'rev-parse', 'HEAD', cwd=source, capture=True).strip()
     if head != LOCK['commit']:
         parser.error(f'Kernel HEAD must be pinned to {LOCK["commit"]}, got {head}')
-    if run('git', 'status', '--porcelain', '--untracked-files=normal', cwd=source, capture=True).strip():
-        parser.error('Use a clean source checkout, including clean pinned submodules')
     for name, sha in LOCK['submodules'].items():
         if run('git', '-C', source / name, 'rev-parse', 'HEAD', capture=True).strip() != sha:
             parser.error(f'Initialize pinned submodule {name}: git submodule update --init')
+        if run('git', '-C', source / name, 'status', '--porcelain', capture=True).strip():
+            parser.error(f'Pinned submodule {name} must be clean')
+    prepare_source(source)
     env = os.environ.copy()
     env.pop('KCONFIG_CONFIG', None)
     env.pop('KCONFIG_ALLCONFIG', None)
@@ -100,6 +131,11 @@ def main():
     print(json.dumps(config_receipt, indent=2))
     if args.config_only:
         return
+    # Check the input to .incbin before the expensive whole-kernel link. The
+    # pinned upstream rule used a hardcoded stock defconfig until patched.
+    run(*make, 'kernel/configs.o', env=env)
+    print(json.dumps(verify(out / 'kernel/config_data.gz', 'gzip-config', fragments,
+                            out / '.config'), indent=2))
     run(*make, f'-j{args.jobs}', 'Image', env=env)
     image = out / 'arch/arm64/boot/Image'
     receipt = verify(image, 'image', fragments, out / '.config')

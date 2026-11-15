@@ -6,5 +6,8 @@
     "KernelSU-Next": "9857771aafa73c597981f279b374df744e55a030",
     "Baseband-guard": "c357403da9d75d1566e8bc4e53335ab2322d0977"
   },
-  "clang_directory": "clang-r547379"
+  "clang_directory": "clang-r547379",
+  "patches": {
+    "patches/0001-embed-the-actual-build-config.patch": "3b4ce3a04b872be6586663178e3e50d7d92047ce7c5dfdff9ec0c5d800300f88"
+  }
 }

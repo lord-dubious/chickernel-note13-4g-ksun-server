@@ -11,6 +11,12 @@ build**. Its embedded configuration does not satisfy 73 of the 95 original
 server-fragment assignments and does not enable `CONFIG_KSU`. Do not use its
 name or checksum as proof of features or compatibility.
 
+The audit found why embedded configs were misleading: upstream embeds
+`khaje-stock_defconfig`, not the real build config. Missing settings in that
+stock snapshot do **not** prove the old binaries lacked the compiled features.
+The locked source patch restores truthful IKCONFIG/`/proc/config.gz`; the
+build checks its generated input before linking and the final artifact afterward.
+
 The corrected fragments resolve against the source pinned in `source-lock.json`.
 A resolved config is not a compiled or device-tested kernel. Current evidence
 and remaining gates are in [BUILD_RESULT](docs/BUILD_RESULT.md).

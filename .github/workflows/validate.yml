@@ -29,4 +29,6 @@ jobs:
           git -C "$source_dir" checkout --detach FETCH_HEAD
           git -C "$source_dir" submodule update --init --depth=1
       - name: Resolve and verify every fragment setting
-        run: python3 scripts/build.py --source "$RUNNER_TEMP/chickernel-source" --out "$RUNNER_TEMP/chickernel-config" --config-only
+        run: |
+          python3 scripts/build.py --source "$RUNNER_TEMP/chickernel-source" --out "$RUNNER_TEMP/chickernel-config" --config-only
+          python3 scripts/build.py --source "$RUNNER_TEMP/chickernel-source" --out "$RUNNER_TEMP/chickernel-config" --config-only

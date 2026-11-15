@@ -6,3 +6,4 @@ build.config.* text eol=lf
 *.md text eol=lf
 *.yml text eol=lf
 *.json text eol=lf
+*.patch text eol=lf

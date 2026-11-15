@@ -31,11 +31,19 @@ git -C "$SRC" checkout --detach FETCH_HEAD
 git -C "$SRC" submodule update --init --depth=1
 ```
 
-Use a clean source checkout and empty separate distribution directory. The
-script refuses another source commit or submodule revision. It never edits
+Start with a clean source checkout and empty separate distribution directory.
+The script applies only the checksum-locked patches in `source-lock.json`;
+later runs accept exactly that patch set and reject unrelated source changes.
+It refuses another source commit or submodule revision. It never edits
 `chickernel_defconfig`, installs modules, changes a DT or accesses a phone.
 The pinned KSUN Makefile can apply compatibility changes during compilation;
 retain any resulting source diff as part of the build evidence.
+
+The real patch in `patches/0001-embed-the-actual-build-config.patch` changes the
+upstream IKCONFIG rule from `khaje-stock_defconfig` to `$(KCONFIG_CONFIG)`.
+This removes stock-config spoofing and makes `/proc/config.gz` report the
+actual custom config. A stock embedded snapshot cannot establish which
+features were compiled into an older binary.
 
 ## Check configuration only
 
@@ -55,7 +63,8 @@ python3 scripts/build.py   --source "$SRC"   --out "$HOME/chickernel-build"   --
 ```
 
 Omit `--template` to build only the raw Image and evidence. The script probes
-the compiler before building, stops if any requested setting is lost, builds
+the compiler before building, stops if any requested setting is lost, checks
+the generated IKCONFIG input before the expensive whole-kernel link, builds
 `Image`, checks embedded IKCONFIG against the build `.config`, replaces only
 `Image.gz` in the template, and verifies the packaged kernel again. It writes
 `Image`, `kernel.config`, `vmlinux.symvers`, optional ZIP, `build-provenance.json` and fresh
@@ -70,6 +79,8 @@ python3 scripts/verify_kernel.py /path/to/kernel.zip --kind zip   --fragment "$S
 ```
 
 Use `--kind image` for Image/Image.gz or `--kind config` for a saved config.
+Use `--kind gzip-config` for generated `config_data.gz` or a copy of the
+running phone's `/proc/config.gz`.
 A checksum only identifies bytes. It does not replace feature verification,
 module/KMI checks, backups or [device testing](FLASHING.md).
 
