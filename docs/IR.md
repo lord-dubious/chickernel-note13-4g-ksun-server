@@ -24,7 +24,7 @@ This dump is reference evidence, not proof of the connected phone's firmware.
 Its `sapphiren` overlay contains `st,st21nfc`; `sapphire` is the non-NFC variant.
 
 A compile of the corrected server configuration produced symbol-version
-mismatches against these reference modules (18 for `spidev.ko`, 47 for
+mismatches against these reference modules (13 for `spidev.ko`, 18 for
 `spi-msm-geni.ko`, including `module_layout`; the latter also had two imports
 outside the kernel export table). This candidate must not be assumed compatible
 with those reference modules. The connected phone's modules still need to be
