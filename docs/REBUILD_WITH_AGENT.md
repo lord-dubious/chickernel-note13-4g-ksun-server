@@ -1,149 +1,75 @@
-# Rebuild instructions for a future agent
+# Rebuild and verify on Linux / WSL
 
-This document explains how to reproduce the **flashable KSUN server zip** from scratch.
+## Inputs
 
-## What this repo contains
-This repo is a **reference/handoff repo**, not the full original kernel source tree. Use it together with the upstream kernel source repository:
-- upstream source repo: `https://github.com/chickendrop89/device_xiaomi_gemstones-kernel`
-- source branch base: `android13-5.15-lts`
+- Python 3.10+, Git, make, gcc/g++, flex, bison, bc, OpenSSL/ELF development
+  headers and the matching AOSP LLVM toolchain.
+- Kernel repository, exact commit and submodules from `../source-lock.json`.
+- AOSP `clang-r547379` selected by the pinned source's `build.config.constants`.
+  It is available from the official
+  [AOSP compiler repository](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-r547379/).
+  Retain the downloaded archive's hash. A generic distro clang is adequate for
+  configuration checks but may lack this kernel's Polly/release ML optimizer.
+- Optional audited stable-7 AnyKernel3 ZIP, SHA256:
+  `988ba55f5376b7197c66249229b662bdfceee899fd36012fd356c124df039049`.
+  It is only an installer template; its old Image is always replaced.
 
-Reference files in this repo:
-- `reference-source/BUILD.bazel.snippet.txt`
-- `reference-source/build.config.gki.aarch64.chickernel.ksun.server`
-- `reference-source/server.config`
-- `reference-source/native-sapphire.config`
-- `reference-source/README.server.md`
-- `docs/FEATURES.md`
-- `docs/FLASHING.md`
-- `SHA256SUMS.txt`
+Use a Linux filesystem for the source/build. Windows checkouts can fail on
+Linux filenames such as `aux.c`. Run commands below from this reference repo.
 
-## Goal
-Rebuild these outputs:
-- raw kernel image: `Image`
-- flashable zip: `chickernel-stable-7-ksun-server.zip`
-
-## High-level process
-1. Sync/build a full kernel workspace with `chickernel.xml`
-2. Ensure the real source tree under `common/` is based on `android13-5.15-lts`
-3. Add the server flavor target and config files from `reference-source/`
-4. Build the server flavor
-5. Package the final `Image` into an AnyKernel3-style flashable zip using the official stable-7 KSUN zip as a template
-
-## 1) Prepare workspace
-Expected workspace layout used successfully in this session:
-- workspace root: `/workspaces/chickernel-full`
-- source tree: `/workspaces/chickernel-full/common`
-
-The repo's manifest file was:
-- `chickernel.xml`
-
-## 2) Apply source modifications
-In the `common/` source tree:
-
-### Add BUILD target
-Append the `reference-source/BUILD.bazel.snippet.txt` block to `BUILD.bazel`.
-
-### Add build config
-Create:
-- `build.config.gki.aarch64.chickernel.ksun.server`
-
-Use exactly:
-- `reference-source/build.config.gki.aarch64.chickernel.ksun.server`
-
-### Add Kconfig fragment
-Create:
-- `arch/arm64/configs/chickernel-variants/server.config`
-
-Use exactly:
-- `reference-source/server.config`
-
-Create:
-- `arch/arm64/configs/chickernel-variants/native-sapphire.config`
-
-Use exactly:
-- `reference-source/native-sapphire.config`
-
-### Optional doc copy
-You may also copy:
-- `reference-source/README.server.md`
-
-## 3) Important build note
-The normal branch default used **full LTO**, which made final linking very slow in this session.
-
-For practical completion, the successful artifact build used a temporary ThinLTO override:
+## Fetch the pinned full source
 
 ```bash
-cat > /tmp/lto-thin.config <<'EOF'
-# Faster local build variant
-# CONFIG_LTO_CLANG_FULL is not set
-CONFIG_LTO_CLANG_THIN=y
-EOF
+SRC="$HOME/chickernel-source"
+git init "$SRC"
+git -C "$SRC" remote add origin "$(python3 -c 'import json; print(json.load(open("source-lock.json"))["repository"])')"
+git -C "$SRC" fetch --depth=1 origin "$(python3 -c 'import json; print(json.load(open("source-lock.json"))["commit"])')"
+git -C "$SRC" checkout --detach FETCH_HEAD
+git -C "$SRC" submodule update --init --depth=1
 ```
 
-## 4) Practical successful build path used in this session
-From inside `common/`:
+Use a clean source checkout and empty separate distribution directory. The
+script refuses another source commit or submodule revision. It never edits
+`chickernel_defconfig`, installs modules, changes a DT or accesses a phone.
+The pinned KSUN Makefile can apply compatibility changes during compilation;
+retain any resulting source diff as part of the build evidence.
+
+## Check configuration only
 
 ```bash
-export PATH=/workspaces/chickernel-full/prebuilts/clang/host/linux-x86/clang-r522817/bin:/workspaces/chickernel-full/build/kernel/build-tools/path/linux-x86:$PATH
+python3 -m unittest discover -s tests -v
+python3 scripts/build.py --source "$SRC" --out "$HOME/chickernel-config" --config-only
 ```
 
-Then merge config and build:
+This merges upstream KSUN, server, native and ThinLTO fragments, resolves
+Kconfig, and verifies every assignment. `ROOT_NFS` needs `IP_PNP`; the obsolete
+`INET_XFRM_MODE_TRANSPORT` assignment is intentionally absent.
+
+## Build and optionally package
 
 ```bash
-KCONFIG_CONFIG=arch/arm64/configs/chickernel_defconfig scripts/kconfig/merge_config.sh -m -r \
-  arch/arm64/configs/chickernel_defconfig \
-  arch/arm64/configs/chickernel-variants/ksun.config \
-  arch/arm64/configs/chickernel-variants/server.config \
-  arch/arm64/configs/chickernel-variants/native-sapphire.config \
-  /tmp/lto-thin.config
-
-make ARCH=arm64 LLVM=1 HOSTCC=gcc HOSTCXX=g++ HOSTLD=g++ O=out/thin-build chickernel_defconfig
-make -j4 ARCH=arm64 LLVM=1 HOSTCC=gcc HOSTCXX=g++ HOSTLD=g++ O=out/thin-build Image
+python3 scripts/build.py   --source "$SRC"   --out "$HOME/chickernel-build"   --toolchain /path/to/clang-r547379   --dist "$HOME/chickernel-dist"   --template /path/to/chickernel-stable-7-ksun.zip   --jobs 4
 ```
 
-Successful output paths were:
-- `out/thin-build/arch/arm64/boot/Image`
-- `out/thin-build/vmlinux`
+Omit `--template` to build only the raw Image and evidence. The script probes
+the compiler before building, stops if any requested setting is lost, builds
+`Image`, checks embedded IKCONFIG against the build `.config`, replaces only
+`Image.gz` in the template, and verifies the packaged kernel again. It writes
+`Image`, `kernel.config`, optional ZIP, `build-provenance.json` and fresh
+`SHA256SUMS.txt`. A failed run is not a release; keep its logs and inspect it.
 
-## 5) Packaging flashable zip
-Official release format matched in this session:
-- AnyKernel3-style flashable zip
-- based on the official release asset `chickernel-stable-7-ksun.zip`
+## Verify a transferred artifact
 
-Packaging method used:
-1. download/extract the official stable-7 KSUN zip
-2. replace `Image.gz` with a gzip of the newly built `Image`
-3. optionally adjust banner / kernel.string in `anykernel.sh`
-4. re-zip the package
-
-The exact local packaging pattern used was:
+Use the exact pinned source/fragment inputs used by the build:
 
 ```bash
-gzip -c /path/to/Image > Image.gz
-zip -r9 chickernel-stable-7-ksun-server.zip .
+python3 scripts/verify_kernel.py /path/to/kernel.zip --kind zip   --fragment "$SRC/arch/arm64/configs/chickernel-variants/ksun.config"   --fragment reference-source/server.config   --fragment reference-source/native-sapphire.config   --fragment reference-source/thin-lto.config   --reference-config /path/to/kernel.config
 ```
 
-## 6) Expected artifact names
-The final artifact names used in this session were:
-- `Image`
-- `chickernel-stable-7-ksun-server.zip`
+Use `--kind image` for Image/Image.gz or `--kind config` for a saved config.
+A checksum only identifies bytes. It does not replace feature verification,
+module/KMI checks, backups or [device testing](FLASHING.md).
 
-## 7) Verification expectations
-After rebuild, verify:
-- the build produces `Image`
-- the resulting config includes server features from `reference-source/server.config`
-- the resulting config includes native sapphire and IR support from
-  `reference-source/native-sapphire.config`
-- overlayfs, namespaces, AppArmor, SCTP, NFS/CIFS/9P/Btrfs/XFS, and Docker-related netfilter pieces are enabled
-- `CONFIG_IR_GPIO_TX=y` and `CONFIG_IR_PWM_TX=y` are present
-- the selected DTB/DTBO contains the actual IR transmitter node before expecting
-  the phone's blaster application to work
-- if possible, compare SHA256 against this repo only when reproducing the exact same artifact inputs/toolchain; otherwise expect differences
-
-## 8) Important caveat
-This repo alone is not enough to rebuild unless the next agent also has:
-- the upstream source tree
-- the build workspace/prebuilts
-- the official stable-7 KSUN zip used as packaging template
-
-But with those pieces, the next agent should be able to reconstruct the flashable zip from the instructions and reference files here.
+The old Bazel snippet and shell config are legacy integration references,
+not the verified path described here. CI resolves configuration and tests the
+artifact verifier; it does not claim a complete kernel build or a phone test.

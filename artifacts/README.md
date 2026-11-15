@@ -1,10 +1,12 @@
-# Artifacts
+# Artifact status
 
-The built artifacts produced in this session are:
+No replacement flashable binary is checked into this reference repository.
+Root `SHA256SUMS.txt` records two **historical, unverified-for-features** artifacts:
+`chickernel-stable-7-ksun-server.zip` and `Image-server-ksun`.
+They failed the feature audit described in [BUILD_RESULT](../docs/BUILD_RESULT.md).
+Do not relabel or reflash them as the corrected build.
 
-- `chickernel-stable-7-ksun-server.zip` (flashable AnyKernel3-style zip)
-- `Image-server-ksun` (raw built kernel Image)
-
-Their checksums are recorded in `SHA256SUMS.txt`.
-
-If this repository needs the binary files uploaded later, they can be added from the local working copy or attached to a GitHub release.
+`scripts/build.py` creates a separate distribution directory containing the
+verified Image, actual config, provenance, generated checksums and, if an
+audited AnyKernel3 template is supplied, a verified replacement ZIP.
+Compilation/config verification does not establish boot or IR compatibility.
