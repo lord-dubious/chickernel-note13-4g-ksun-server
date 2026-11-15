@@ -28,6 +28,37 @@ Additional optional server features now enabled in the server variant:
 - `CONFIG_IP_SCTP`
 - `CONFIG_SECURITY_APPARMOR`
 
+## Native hardware and IR
+
+The server target also merges `native-sapphire.config`. For the non-NFC
+`sapphiren` variant, this preserves device-oriented input, USB role-switch,
+MMC, LED, RTC, IIO, GPIO/PWM, and LIRC support without adding an internal NFC
+controller. The generic NFC stack plus common USB reader drivers are retained
+for external NFC-over-USB-C tools.
+
+Both generic IR transmit implementations are enabled:
+- `CONFIG_IR_GPIO_TX`
+- `CONFIG_IR_PWM_TX`
+
+These options make the kernel drivers available, but they do not identify the
+phone's physical IR pin automatically. The sapphire DT/DTBO and Android/vendor
+userspace must still describe and use the correct transmitter node. A build
+with these symbols enabled is therefore a necessary kernel-side restoration,
+not proof that the device-specific blaster wiring is complete.
+
+The exact `sapphiren`-compatible public kernel artifacts were checked during
+the audit. Their extracted configuration had `CONFIG_RC_CORE`, `CONFIG_LIRC`,
+`CONFIG_RC_DECODERS`, and `CONFIG_RC_DEVICES`, but had both transmitter options
+disabled. Their published DTB/DTBO artifacts did not expose an identifiable
+`gpio-ir-tx`, `pwm-ir-tx`, or Xiaomi-specific IR node. This repository enables
+the missing kernel options, but does not fabricate a GPIO/PWM assignment that
+has not been verified against the phone's stock DT.
+
+Reference sources checked:
+- `https://github.com/chickendrop89/device_xiaomi_gemstones-kernel` (`android13-5.15-lts`)
+- `https://github.com/sm6225-sapphire/device_xiaomi_sapphire-kernel` (`15`)
+- `https://github.com/xiaomi-6225-AD/android_device_xiaomi_sapphire-kernel` (`lineage-21`)
+
 ## Build guidance
 Use the full manifest workspace from `chickernel.xml`, not the lightweight `readme` checkout.
 

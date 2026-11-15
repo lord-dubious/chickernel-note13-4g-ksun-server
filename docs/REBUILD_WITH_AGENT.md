@@ -11,6 +11,7 @@ Reference files in this repo:
 - `reference-source/BUILD.bazel.snippet.txt`
 - `reference-source/build.config.gki.aarch64.chickernel.ksun.server`
 - `reference-source/server.config`
+- `reference-source/native-sapphire.config`
 - `reference-source/README.server.md`
 - `docs/FEATURES.md`
 - `docs/FLASHING.md`
@@ -56,6 +57,12 @@ Create:
 Use exactly:
 - `reference-source/server.config`
 
+Create:
+- `arch/arm64/configs/chickernel-variants/native-sapphire.config`
+
+Use exactly:
+- `reference-source/native-sapphire.config`
+
 ### Optional doc copy
 You may also copy:
 - `reference-source/README.server.md`
@@ -87,6 +94,7 @@ KCONFIG_CONFIG=arch/arm64/configs/chickernel_defconfig scripts/kconfig/merge_con
   arch/arm64/configs/chickernel_defconfig \
   arch/arm64/configs/chickernel-variants/ksun.config \
   arch/arm64/configs/chickernel-variants/server.config \
+  arch/arm64/configs/chickernel-variants/native-sapphire.config \
   /tmp/lto-thin.config
 
 make ARCH=arm64 LLVM=1 HOSTCC=gcc HOSTCXX=g++ HOSTLD=g++ O=out/thin-build chickernel_defconfig
@@ -124,7 +132,12 @@ The final artifact names used in this session were:
 After rebuild, verify:
 - the build produces `Image`
 - the resulting config includes server features from `reference-source/server.config`
+- the resulting config includes native sapphire and IR support from
+  `reference-source/native-sapphire.config`
 - overlayfs, namespaces, AppArmor, SCTP, NFS/CIFS/9P/Btrfs/XFS, and Docker-related netfilter pieces are enabled
+- `CONFIG_IR_GPIO_TX=y` and `CONFIG_IR_PWM_TX=y` are present
+- the selected DTB/DTBO contains the actual IR transmitter node before expecting
+  the phone's blaster application to work
 - if possible, compare SHA256 against this repo only when reproducing the exact same artifact inputs/toolchain; otherwise expect differences
 
 ## 8) Important caveat

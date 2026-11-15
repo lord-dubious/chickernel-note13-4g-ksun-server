@@ -11,7 +11,7 @@ BUILD_GKI_ARTIFACTS=0
 BUILD_GKI_CERTIFICATION_TOOLS=0
 
 DEFCONFIG=chickernel_defconfig
-FRAGMENT_CONFIGS="${DEFCONFIG_PATH}/chickernel-variants/ksun.config ${DEFCONFIG_PATH}/chickernel-variants/server.config"
+FRAGMENT_CONFIGS="${DEFCONFIG_PATH}/chickernel-variants/ksun.config ${DEFCONFIG_PATH}/chickernel-variants/server.config ${DEFCONFIG_PATH}/chickernel-variants/native-sapphire.config"
 
 PRE_DEFCONFIG_CMDS="
 cp ${DEFCONFIG_PATH}/${DEFCONFIG} ${DEFCONFIG_PATH}/.tmp.${DEFCONFIG}; \
