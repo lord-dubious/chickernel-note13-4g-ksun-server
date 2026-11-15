@@ -2,7 +2,7 @@ name: Configuration and artifact tooling
 on:
   pull_request:
   push:
-    branches: [main, sapphiren-native-hardware-support]
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read

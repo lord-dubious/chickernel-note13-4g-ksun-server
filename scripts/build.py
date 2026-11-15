@@ -46,6 +46,8 @@ def main():
         parser.error('--out must be outside the kernel source tree')
     if not args.config_only and (not args.toolchain or not args.dist):
         parser.error('Full builds require --toolchain and --dist')
+    if args.toolchain and not (args.toolchain / 'bin/clang').is_file():
+        parser.error('--toolchain must contain bin/clang; refusing a PATH fallback')
     dist = args.dist.resolve() if args.dist else None
     if dist:
         if dist == source or source in dist.parents or dist == out or out in dist.parents:
