@@ -11,7 +11,7 @@ import subprocess
 import sys
 import zipfile
 
-from verify_kernel import parse_config, verify
+from verify_kernel import verify
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCK = json.loads((ROOT / 'source-lock.json').read_text())
@@ -75,6 +75,10 @@ def main():
     if args.toolchain:
         env['PATH'] = str(args.toolchain.resolve() / 'bin') + os.pathsep + env['PATH']
     if not args.config_only:
+        # make computes PAHOLE_FLAGS when it starts; installing the tool after
+        # compilation begins can leave required BTF compatibility flags empty.
+        if not shutil.which('pahole', path=env['PATH']):
+            parser.error('Full builds require pahole before make starts (install pahole/dwarves)')
         # Test a real optimizer invocation: distro clang can advertise the option
         # yet fail because it lacks the release ML model required by this tree.
         run('clang', '--target=aarch64-linux-gnu', '-O2', '-mllvm',
@@ -96,9 +100,6 @@ def main():
     print(json.dumps(config_receipt, indent=2))
     if args.config_only:
         return
-    if parse_config((out / '.config').read_text()).get('CONFIG_DEBUG_INFO_BTF') == 'y':
-        if not shutil.which('pahole', path=env['PATH']):
-            parser.error('CONFIG_DEBUG_INFO_BTF requires pahole (install the pahole/dwarves package)')
     run(*make, f'-j{args.jobs}', 'Image', env=env)
     image = out / 'arch/arm64/boot/Image'
     receipt = verify(image, 'image', fragments, out / '.config')

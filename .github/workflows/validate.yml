@@ -15,6 +15,7 @@ jobs:
       - name: Test artifact rejection and config checks
         run: |
           python3 -m unittest discover -s tests -v
+          python3 -m compileall -q scripts
           git diff --check
           bash -n reference-source/build.config.gki.aarch64.chickernel.ksun.server
       - name: Install configuration tools
