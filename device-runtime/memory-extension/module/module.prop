@@ -1,0 +1,6 @@
+id=sapphire_native_extm
+name=Sapphire Memory Extension
+version=1.3
+versionCode=4
+author=Local device configuration
+description=Encrypted zRAM writeback for the verified sapphire server kernel. Settings changes apply after restarting. No ordinary swapfile.

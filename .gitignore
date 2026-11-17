@@ -2,3 +2,15 @@ __pycache__/
 *.pyc
 /out/
 /dist/
+/outputs/
+/work/
+device-runtime/outputs/
+device-runtime/**/app-build/
+device-runtime/**/bin/
+!device-runtime/docker/boot-module/system/bin/
+!device-runtime/docker/boot-module/system/bin/docker
+device-runtime/docker/plugins/
+*.apk
+*.p12
+*.jks
+*signing-password*

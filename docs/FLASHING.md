@@ -1,6 +1,8 @@
 # Device inspection and installation gates
 
-The repository and build tools do not automatically flash or reboot a phone.
+The kernel build and packaging tools do not automatically flash or reboot a
+phone. The optional runtime app offers an explicit user-initiated Android
+restart for applying a saved memory-extension selection.
 A config-verified build is not yet proven compatible with the installed ROM.
 
 ## Before changing a partition
@@ -39,6 +41,27 @@ relock the bootloader or alter super metadata as a troubleshooting shortcut.
 Kernel and driver updates are installed as a matched set, with read-back hash
 verification. Boot the matching recovery first, then check Android and physical
 hardware before starting container workloads or enabling ExtM backing storage.
+
+### Route verified on the installed device
+
+The successful installation used TWRP's native ZIP runner. Baseband Guard
+rejected a raw ADB `su`-context write before any image bytes were written; its
+trusted recovery context permitted the normal recovery installation. Existing
+logical mappings were checked against liblp metadata, remapped writable with
+the installed ROM's `dmctl`, and restored read-only after the operation. Sizes,
+extents and super metadata were unchanged. All originals and replacements were
+staged and hash-checked before writes, boot was written last, and all five
+readbacks were verified before reboot.
+
+The maintainer's ordinary kernel ZIP instructions and the crDroid ROM-update
+instructions do not themselves install this replacement driver stack. The
+device guide's RO2RW step was audited, but its full-super conversion was not
+run for this update. Do not infer that an arbitrary RO2RW variant, a kernel-only
+ZIP or hardcoded logical extents are a generic installation method.
+
+Primary guides: [Chickernel stable-7](https://github.com/ChicKernel/device_xiaomi_gemstones-kernel/releases/tag/stable-7),
+[crDroid sapphire update instructions](https://crdroid.net/sapphire/11/install),
+and [release-linked recovery instructions](https://telegra.ph/Flashing-Instructions-09-14-2).
 
 Check normal boot, touch/fingerprint, storage, Wi-Fi/mobile data, charging,
 root manager compatibility, loaded vendor modules and kernel logs. Extract the

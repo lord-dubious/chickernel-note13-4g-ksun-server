@@ -1,0 +1,23 @@
+{
+  "source": "Official docker/compose and docker/buildx latest release metadata via GitHub MCP",
+  "plugins": [
+    {
+      "repo": "compose",
+      "version": "v5.8.0",
+      "file": "docker-compose",
+      "url": "https://github.com/docker/compose/releases/download/v5.8.0/docker-compose-linux-aarch64",
+      "bytes": 32155346,
+      "sha256": "1a9c918b2fb49b9c87f0018c64b5abd0d30715155e98dc939779fbaee6c414d3",
+      "checksums_url": "https://github.com/docker/compose/releases/download/v5.8.0/checksums.txt"
+    },
+    {
+      "repo": "buildx",
+      "version": "v0.39.0",
+      "file": "docker-buildx",
+      "url": "https://github.com/docker/buildx/releases/download/v0.39.0/buildx-v0.39.0.linux-arm64",
+      "bytes": 63570080,
+      "sha256": "722cdcdfdd6f3fb943fa1ba75102d057feb18ba72aab93b1b0a8cf2b2b48a25f",
+      "checksums_url": "https://github.com/docker/buildx/releases/download/v0.39.0/checksums.txt"
+    }
+  ]
+}

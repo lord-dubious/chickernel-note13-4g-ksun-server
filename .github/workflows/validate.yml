@@ -20,6 +20,12 @@ jobs:
           bash -n reference-source/build.config.gki.aarch64.chickernel.ksun.server
       - name: Install configuration tools
         run: sudo apt-get update -qq && sudo apt-get install -y build-essential flex bison clang lld llvm libssl-dev libelf-dev bc
+      - name: Check runtime shell and native helper sources
+        run: |
+          find device-runtime -type f \( -name '*.sh' -o -path '*/system/bin/docker' \) -print0 | xargs -0 -r -n 1 bash -n
+          gcc -Wall -Wextra -Werror -fsyntax-only device-runtime/docker/src/nsroot_launch.c
+          gcc -Wall -Wextra -Werror -fsyntax-only device-runtime/memory-extension/src/loop_directio.c
+          gcc -Wall -Wextra -Werror -fsyntax-only device-runtime/memory-extension/src/check_per_boot_key_ready.c
       - name: Fetch pinned upstream and submodules
         run: |
           source_dir="$RUNNER_TEMP/chickernel-source"

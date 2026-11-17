@@ -17,9 +17,17 @@ stock snapshot do **not** prove the old binaries lacked the compiled features.
 The locked source patch restores truthful IKCONFIG/`/proc/config.gz`; the
 build checks its generated input before linking and the final artifact afterward.
 
-The corrected fragments resolve against the source pinned in `source-lock.json`.
-A resolved config is not a compiled or device-tested kernel. Current evidence
-and remaining gates are in [BUILD_RESULT](docs/BUILD_RESULT.md).
+The corrected 155-setting build and its matching vendor-driver stack have now
+been installed and tested on sapphire running crDroid 11.2 / Android 15.
+The running config matches the compiled config. Native ARM64 Docker, resource
+limits, networking, Compose, image builds, encrypted zRAM writeback, and an
+Adreno 610 Vulkan compute workload inside a container have passed device checks.
+This establishes the tested build/ROM combination, not universal compatibility.
+Evidence and remaining gates are in [BUILD_RESULT](docs/BUILD_RESULT.md).
+
+The [device runtime sources](device-runtime/README.md) contain the deployed
+Docker launcher, memory-extension module and Settings app, and bounded GPU
+probe. Recovery touch after screen-off remains an unresolved existing issue.
 
 ## Build and verify
 

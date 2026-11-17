@@ -1,0 +1,19 @@
+{
+  "hosts": ["unix:///run/docker.sock"],
+  "data-root": "/var/lib/docker",
+  "exec-root": "/run/docker",
+  "pidfile": "/run/dockerd.pid",
+  "storage-driver": "vfs",
+  "features": {"containerd-snapshotter": false},
+  "exec-opts": ["native.cgroupdriver=cgroupfs"],
+  "cgroup-parent": "/codex-native-docker",
+  "bip": "172.30.240.1/24",
+  "default-address-pools": [{"base": "172.30.240.0/20", "size": 24}],
+  "iptables": true,
+  "ip6tables": false,
+  "ip-forward": false,
+  "ip-forward-no-drop": true,
+  "ip-masq": true,
+  "log-driver": "local",
+  "log-opts": {"max-size": "5m", "max-file": "2"}
+}

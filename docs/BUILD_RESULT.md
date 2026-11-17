@@ -1,6 +1,43 @@
 # Build and audit status
 
-## Offline driver and ExtM work, 2026-11-17
+## Installed build and device validation, 2026-11-17
+
+The matched five-image set was installed through TWRP on sapphire with
+crDroidAndroid-15.0-20250224-sapphire-v11.2. Fresh readback hashes matched all
+replacement images. Magisk init_boot, DTBO and both verification images were
+unchanged. The new kernel booted in recovery and Android, and its running
+embedded config exactly matched the compiled 155-setting config.
+
+Native ARM64 Docker 29.10.0 passed real container, resource-limit, namespace,
+seccomp and filesystem-root checks. Default bridge DNS/HTTPS and published
+ports passed, including a LAN HTTP request. Compose v5.8.0 served a bind-mounted
+file and reached HTTPS through its own network. Buildx v0.39.0 built an image
+which then ran successfully. The encrypted Android F2FS backing uses VFS
+storage; OverlayFS support in the kernel does not make an encrypted upper
+directory acceptable to this 5.15 OverlayFS implementation.
+
+An explicitly configured container loaded the phone's Android Vulkan runtime,
+identified the hardware Adreno 610 device, dispatched a compute shader, and
+verified all 256 results. This is an Android-compatible Vulkan workload, not a
+claim that arbitrary Linux GPU images or CUDA are supported.
+
+The 8 GiB zRAM / 8 GiB encrypted backing configuration initialized automatically
+after a fresh Android boot. Initialization waits for the current per-boot
+encryption key; merely finding an encrypted directory was insufficient during
+early boot. Direct I/O, bounded writeback, SHA-256 data readback and loop
+autoclear/automatic detach were tested. SELinux remains enforcing.
+
+The existing TWRP touch-after-screen-off issue remains unresolved. A read-only
+capture tool is supplied for the next physically assisted recovery test.
+The stock SPI IR repair is retained; additional physical hardware checks are
+not implied by driver-symbol or container tests.
+
+See [runtime sources and scope](../device-runtime/README.md) and the sanitized
+[validation summary](../device-runtime/validation.json). Binaries, original
+partition backups, signing secrets and personal device identifiers are excluded
+from this repository.
+
+## Historical offline driver and ExtM work, 2026-11-17
 
 A new Image was compiled with all **155** current fragment requirements verified
 against its embedded configuration. It includes the actual Xiaomi ExtM zRAM
@@ -68,14 +105,16 @@ against matching, mismatched and incomplete export tables (exit 0/1/2).
 CI resolves the fragments and checks the Python tooling; it does not run a
 complete kernel build or device test.
 
-## Compatibility remains a device gate
+## Historical pre-driver-rebuild compatibility gate
 
 The public reference SPI modules have 13 (`spidev.ko`) and 18
 (`spi-msm-geni.ko`) imported CRC mismatches against this build, including
 `module_layout`; the controller also has two imports outside the kernel export
 table. This candidate is not established compatible with those modules.
 The actual phone's ROM/modules still need collection and comparison.
-No boot, root, Docker, complete KMI/CFI, or physical IR result is claimed.
+Those were kernel-only candidate results. The matched driver rebuild and
+specific-device runtime checks above supersede that gate for the installed set;
+they do not make the old reference modules compatible.
 See [IR evidence](IR.md) and [installation gates](FLASHING.md).
 
 ## Host issues retained for reproducibility

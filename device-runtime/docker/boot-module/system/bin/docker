@@ -1,0 +1,11 @@
+#!/system/bin/sh
+CONTROL=/data/local/codex-native-docker/control.sh
+if [ "$(id -u)" = 0 ]; then exec /system/bin/sh "$CONTROL" docker "$@"; fi
+quote_arg() {
+    printf "'"
+    printf '%s' "$1" | sed "s/'/'\\\\''/g"
+    printf "'"
+}
+command='/system/bin/sh /data/local/codex-native-docker/control.sh docker'
+for arg in "$@"; do command="$command $(quote_arg "$arg")"; done
+exec /product/bin/su -c "$command"
