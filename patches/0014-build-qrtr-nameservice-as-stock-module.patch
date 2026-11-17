@@ -1,0 +1,31 @@
+From f5092aaf94e2fc3fb4e886fa24f4d942f72979cd Mon Sep 17 00:00:00 2001
+From: Angelpro09xd <167892325+Angelpro09xd@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 11:41:22 +0100
+Subject: [PATCH 9/9] sapphire: qrtr: build the nameservice as ns.ko like stock
+
+The stock sapphire vendor_boot ships qrtr.ko and a separate ns.ko (listed
+in modules.load). With ns built into qrtr.ko both export qrtr_ns_init,
+qrtr_ns_remove and qrtr_get_service_id, so the stock ns.ko fails to load
+in first-stage init and the phone reboots.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ net/qrtr/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/net/qrtr/Makefile b/net/qrtr/Makefile
+index a6f7200ce..450440615 100644
+--- a/net/qrtr/Makefile
++++ b/net/qrtr/Makefile
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+-obj-$(CONFIG_QRTR) += qrtr.o
+-qrtr-y	:= af_qrtr.o ns.o
++obj-$(CONFIG_QRTR) += qrtr.o ns.o
++qrtr-y	:= af_qrtr.o
+ 
+ obj-$(CONFIG_QRTR_SMD) += qrtr-smd.o
+ qrtr-smd-y	:= smd.o
+-- 
+2.53.0
+

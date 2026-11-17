@@ -1,0 +1,10 @@
+--- a/drivers/scsi/ufs/ufs-qcom.c
++++ b/drivers/scsi/ufs/ufs-qcom.c
+@@ -2385,7 +2385,6 @@
+ 		hba->spm_lvl = spm_lvl;
+ 	host->is_dt_pm_level_read = true;
+ 
+-	host->spm_lvl_default = hba->spm_lvl;
+ }
+ 
+ /*

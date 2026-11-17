@@ -146,22 +146,26 @@ def main():
     if args.template:
         # Only the audited historical stable-7 layout is supported. Its old
         # Image is untrusted and always replaced; other installer bytes persist.
-        package = dist / 'chickernel-stable-7-ksun-server.zip'
+        package = dist / 'chickernel-stable-7-ksun-server-KERNEL_ONLY_DO_NOT_FLASH.zip'
         with zipfile.ZipFile(args.template) as old, zipfile.ZipFile(package, 'w') as new:
             if old.namelist().count('Image.gz') != 1 or 'Image' in old.namelist():
                 parser.error('Unexpected template kernel entries')
             for info in old.infolist():
                 data = gzip.compress(image.read_bytes(), mtime=0) if info.filename == 'Image.gz' else old.read(info)
                 new.writestr(info, data)
+            new.writestr('DO_NOT_FLASH.txt',
+                         'Kernel-only build artifact. Matching phone drivers are not included.\n'
+                         'Use a complete, validated boot/driver package with verified backups.\n')
         verify(package, 'zip', fragments, out / '.config')
     provenance = {'kernel_source': LOCK, 'reference_repo_commit':
                   run('git', '-C', ROOT, 'rev-parse', 'HEAD', capture=True).strip(),
                   'reference_repo_dirty': bool(run('git', '-C', ROOT, 'status', '--porcelain',
                                                    capture=True).strip()),
                   'compiler': run('clang', '--version', env=env, capture=True),
+                  'pahole': run('pahole', '--version', env=env, capture=True),
                   'tool_executables_sha256': {
                       name: digest(Path(shutil.which(name, path=env['PATH'])).resolve())
-                      for name in ('clang', 'clang.real', 'ld.lld', 'llvm-ar')
+                      for name in ('clang', 'clang.real', 'ld.lld', 'llvm-ar', 'pahole')
                       if shutil.which(name, path=env['PATH'])},
                   'kernel_source_diff': run('git', 'diff', '--binary', cwd=source, capture=True),
                   'template_sha256': digest(args.template) if args.template else None,

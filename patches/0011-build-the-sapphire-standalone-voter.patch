@@ -1,0 +1,22 @@
+--- a/drivers/power/supply/Makefile
++++ b/drivers/power/supply/Makefile
+@@ -107,7 +107,7 @@
+ obj-$(CONFIG_CHARGER_SURFACE)	+= surface_charger.o
+ obj-$(CONFIG_QTI_BATTERY_CHARGER)	+= qti_battery_charger.o
+ obj-$(CONFIG_QCOM_POWER_SUPPLY)	+= qcom/
+-obj-$(CONFIG_NOPMI_CHARGER)     += nopmi/
++obj-y                           += nopmi/
+ obj-$(CONFIG_NOPMI_CHARGER)     += battery_secret/
+ obj-$(CONFIG_NOPMI_CHARGER)     += nopmi-chg.o
+ nopmi-chg-y	+= nopmi_chg.o nopmi_chg_jeita.o nopmi_chg_common.o
+--- a/drivers/power/supply/qcom/Makefile
++++ b/drivers/power/supply/qcom/Makefile
+@@ -3,7 +3,7 @@
+ obj-$(CONFIG_QPNP_SMB2) += qpnp-smb2-main.o
+ qpnp-smb2-main-y += step-chg-jeita.o battery.o qpnp-smb2.o smb-lib.o pmic-voter.o storm-watch.o battery-profile-loader.o smb2-iio.o
+ obj-$(CONFIG_QPNP_SMB5) += qpnp-smb5-main.o
+-qpnp-smb5-main-y += step-chg-jeita.o battery.o qpnp-smb5.o smb5-lib.o pmic-voter.o storm-watch.o schgm-flash.o battery-profile-loader.o smb5-iio.o smbx-get-chan.o
++qpnp-smb5-main-y += step-chg-jeita.o battery.o qpnp-smb5.o smb5-lib.o storm-watch.o schgm-flash.o battery-profile-loader.o smb5-iio.o smbx-get-chan.o
+ obj-$(CONFIG_QPNP_QNOVO5) += qpnp-qnovo5-main.o
+ qpnp-qnovo5-main-y += qpnp-qnovo5.o battery.o smb5-lib.o smb5-iio.o schgm-flash.o storm-watch.o step-chg-jeita.o battery-profile-loader.o
+ obj-$(CONFIG_QPNP_FG_GEN3) += qpnp-fg-gen3-main.o

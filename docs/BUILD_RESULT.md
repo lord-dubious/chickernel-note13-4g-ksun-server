@@ -1,5 +1,30 @@
 # Build and audit status
 
+## Offline driver and ExtM work, 2026-11-17
+
+A new Image was compiled with all **155** current fragment requirements verified
+against its embedded configuration. It includes the actual Xiaomi ExtM zRAM
+interfaces, confirmed in real ELF symbols, plus the container configuration.
+Its SHA-256 is
+`887c2e22c340b1d2c03f4d294578088a99558722ba04a213969e12d70e3a9864`.
+All 16,027 core export CRCs remain unchanged from the earlier Docker candidate.
+
+The complete device build now produces **338** modules with zero imported-symbol
+mismatches or unresolved imports. Of the 316 unique module files found in the
+phone and first-stage backup, 313 have rebuilt replacements and three are
+built into the Image. The actual old GPU module remains a negative control with
+122 mismatches. The battery thermistor tables match the original module bytes.
+
+Offline boot, recovery and driver images have been assembled using the original
+device trees and verified backups. These results establish build/configuration
+and packaging checks only. The phone is still on its working old kernel: no
+partition has been flashed, no permanent storage-backed memory extension has
+been enabled, and Docker/GPU workloads have not yet run on this candidate.
+
+The custom ROM needs a compatible ExtM userspace setup. The experimental
+ordinary-swap addon was not a stock HyperOS implementation and was never
+installed. It is excluded from the kernel project.
+
 ## Historical artifact audit, 2026-11-15
 
 The downloaded `chickernel-stable-7-ksun-server.zip` matches the historical

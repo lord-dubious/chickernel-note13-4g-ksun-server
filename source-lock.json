@@ -8,6 +8,22 @@
   },
   "clang_directory": "clang-r547379",
   "patches": {
-    "patches/0001-embed-the-actual-build-config.patch": "7041dbecf9431d701b1f7d33d5e09ffabb74dd0a0d3172045f6a9e34974120aa"
+    "patches/0001-embed-the-actual-build-config.patch": "7041dbecf9431d701b1f7d33d5e09ffabb74dd0a0d3172045f6a9e34974120aa",
+    "patches/0002-restore-qualcomm-direct-connect-helper.patch": "a2353c92cd30e994aeda8f372758022a22fc954c873c2d6424d552038ff7ca12",
+    "patches/0003-drop-stale-ufs-pm-cache-write.patch": "08729bf0e1c6ca35a33e4757c263ad012e8e1bbdc6ef44e91d21557065e7703b",
+    "patches/0004-drop-unused-remoteproc-history-storage.patch": "5735bf64318abeea5fb240ffc2819c9bce9c91946697c93d0921b380ba078c45",
+    "patches/0005-deduplicate-adsp-resource-definitions.patch": "439e977f2e247219131c3e84945de12b8cc509e1a8aa7fb2a8af671eb74603f2",
+    "patches/0006-drop-unregistered-coresight-mhi-callback.patch": "bba1b04b0f102ce32ca0d8e9331450c987de0e9e2488b6c145d9843df16cb4c8",
+    "patches/0007-allow-explicit-core-btf-for-module-builds.patch": "57ccb54e4ec981a81c7a994cffa9bde9334091f4edacc87f610fca432afe1b98",
+    "patches/0008-restore-sapphire-charger-and-gauge.patch": "48d88c02658f4574e4f64931d8085724680eca43cba6bec6fffb4f8c05ceb149",
+    "patches/0009-restore-sapphire-panel-and-thermal-interface.patch": "61d4364d51a1799fd2ab947f88c90555664f9cb78a5ee0b6c3bcb857e9799364",
+    "patches/0010-restore-sapphire-usb-pd-policy.patch": "0d209649d492b72ba28e3eef3bb11d4c9ca57e8d0ab20f83f7f7e23328904306",
+    "patches/0011-build-the-sapphire-standalone-voter.patch": "31fa4a19f1e53fd8b233f99b335b0aa9931b0b7a7691c2c7c803eab788d8186b",
+    "patches/0012-restore-sapphire-ufs-diagnostics.patch": "2e697e11c29811cced90ce8de0a05ce2fb8fc7497b86c04938f20f2f11b445eb",
+    "patches/0013-preserve-phone-battery-temperature-calibration.patch": "7f5cbcdb9e9f1494f07830a7c87b637497cad2873a5bf1a77b2feb942e6f94f9",
+    "patches/0014-build-qrtr-nameservice-as-stock-module.patch": "d9fc4a6b58be836ef9889b0aebdf796dc1f7c500634cebf33a352a311a34d07c",
+    "patches/0015-match-sapphire-remoteprocessor-clock-resources.patch": "e26ffcea5498d0bbced8ff83b17af46b0f6477cb6d34c863c17e309408fe989d",
+    "patches/0016-restore-xiaomi-extm-zram-driver-api.patch": "d1c6a2085a3f3874a117d28df968bbf3efd089acab1a111c3245a3bdd344d930",
+    "patches/0017-declare-extm-page-life-initializer-with-no-arguments.patch": "a5f48628f79c786ab183d08896c04b8e7a734909cc8b76768b97377baece0f33"
   }
 }

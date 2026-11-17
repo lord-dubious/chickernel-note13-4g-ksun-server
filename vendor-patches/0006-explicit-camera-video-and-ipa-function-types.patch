@@ -1,0 +1,49 @@
+--- a/qcom/opensource/video-driver/driver/vidc/src/msm_vidc_control.c
++++ b/qcom/opensource/video-driver/driver/vidc/src/msm_vidc_control.c
+@@ -3343,7 +3343,7 @@
+ 	return rc;
+ }
+ 
+-static msm_venc_set_csc_coeff(struct msm_vidc_inst *inst,
++static int msm_venc_set_csc_coeff(struct msm_vidc_inst *inst,
+ 	const char *prop_name, u32 hfi_id, void *payload,
+ 	u32 payload_size, u32 row_count, u32 column_count)
+ {
+--- a/qcom/opensource/camera-kernel/drivers/cam_ope/ope_hw_mgr/cam_ope_hw_mgr.c
++++ b/qcom/opensource/camera-kernel/drivers/cam_ope/ope_hw_mgr/cam_ope_hw_mgr.c
+@@ -3571,7 +3571,7 @@
+ 	return rc;
+ }
+ 
+-static cam_ope_mgr_hw_close_u(void *hw_priv, void *hw_close_args)
++static int cam_ope_mgr_hw_close_u(void *hw_priv, void *hw_close_args)
+ {
+ 	struct cam_ope_hw_mgr *hw_mgr;
+ 	int rc = 0;
+--- a/qcom/opensource/dataipa/drivers/platform/msm/ipa/ipa_clients/ipa_mhi_client.c
++++ b/qcom/opensource/dataipa/drivers/platform/msm/ipa/ipa_clients/ipa_mhi_client.c
+@@ -2629,7 +2629,7 @@
+ 	.mhi_dma_suspend = ipa_mhi_dma_suspend,
+ };
+ 
+-int ipa_dma_mhi_provide_ops()
++int ipa_dma_mhi_provide_ops(void)
+ {
+ 	return mhi_dma_provide_ops(&ipa_dma_mhi_driver_ops);
+ }
+--- a/qcom/opensource/dataipa/drivers/platform/msm/gsi/gsihal/gsihal_reg.c
++++ b/qcom/opensource/dataipa/drivers/platform/msm/gsi/gsihal/gsihal_reg.c
+@@ -2305,11 +2305,11 @@
+ EXPORT_SYMBOL(gsihal_get_reg_nk_ofst);
+ 
+ /*
+-* gsihal_get_bit_map_array_size(void) - Get the size of the bit map
++* gsihal_get_bit_map_array_size() - Get the size of the bit map
+ *	array size according to the
+ *	GSI version.
+ */
+-u32 gsihal_get_bit_map_array_size()
++u32 gsihal_get_bit_map_array_size(void)
+ {
+ 	return GSI_CH_BIT_MAP_ARR_SIZE;
+ }

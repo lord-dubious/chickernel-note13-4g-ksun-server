@@ -1,0 +1,22 @@
+--- a/drivers/hwtracing/coresight/coresight-tmc-pcie.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-pcie.c
+@@ -135,19 +135,6 @@
+ 	kfree(req);
+ }
+ 
+-static void tmc_pcie_mhi_dev_event_cb(struct mhi_dev_client_cb_reason *reason)
+-{
+-	struct tmc_pcie_data *pcie_data;
+-
+-	pcie_data = tmc_pcie_data;
+-	if (!pcie_data)
+-		return;
+-
+-	if (reason->reason == MHI_DEV_TRE_AVAILABLE) {
+-		queue_work(pcie_data->pcie_wq, &pcie_data->pcie_write_work);
+-		dev_dbg(pcie_data->dev, "mhi tre available\n");
+-	}
+-}
+ 
+ static void tmc_pcie_open_work_fn(struct work_struct *work)
+ {

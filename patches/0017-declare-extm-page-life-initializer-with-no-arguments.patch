@@ -1,0 +1,11 @@
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -1100,7 +1100,7 @@
+ 	}
+ }
+ 
+-static struct zram_pages_life *init_pages_life()
++static struct zram_pages_life *init_pages_life(void)
+ {
+ 	size_t i = 0;
+ 	struct zram_pages_life *pl = NULL;

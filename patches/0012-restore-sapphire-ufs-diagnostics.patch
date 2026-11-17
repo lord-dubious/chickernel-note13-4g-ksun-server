@@ -1,0 +1,184 @@
+From a4a6dfc1d3b9d5b20a1d416a8f7b6974e6dbbb16 Mon Sep 17 00:00:00 2001
+From: Angelpro09xd <167892325+Angelpro09xd@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 17:28:25 +0100
+Subject: [PATCH] sapphire: ufs-qcom: Xiaomi UFS diagnostics for mi_memory
+
+Use the CLO ufs-qcom on the GKI UFS core instead of Xiaomi's private
+copy of the whole core (mi_ufs + CLD + UFS firmware auto-update). On
+sapphire (YMTC YMUS8B2TE2A2C1 fw 3.a) the stock FFU reports the firmware
+is already the newest, CLD fails to init, and the stock ufs_fixups table
+equals the GKI one (no YMTC entry), so behaviour is unchanged.
+
+Add only what mi_memory uses: struct ufs_uic_stats in ufs_qcom_host
+right after dev_req_params (offset 0x6c like stock), counted from
+event_notify, and get_ufs_data() with the error-state record (export
+CRC 0xd45d0297, same as stock).
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ drivers/scsi/ufs/ufs-qcom.c | 63 +++++++++++++++++++++++++++++++++++++
+ drivers/scsi/ufs/ufs-qcom.h | 60 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 123 insertions(+)
+
+diff --git a/drivers/scsi/ufs/ufs-qcom.c b/drivers/scsi/ufs/ufs-qcom.c
+index a7d2adf8e..35e9c0956 100644
+--- a/drivers/scsi/ufs/ufs-qcom.c
++++ b/drivers/scsi/ufs/ufs-qcom.c
+@@ -4498,6 +4498,67 @@ static void ufs_qcom_save_all_regs(struct ufs_qcom_host *host)
+ 
+ }
+ 
++/* Xiaomi UFS diagnostics (sapphire) */
++static struct UFS_DATA ufs_data;
++static DEFINE_SPINLOCK(ufs_data_lock);
++
++struct UFS_DATA *get_ufs_data(void)
++{
++	return &ufs_data;
++}
++EXPORT_SYMBOL(get_ufs_data);
++
++static void ufs_qcom_xiaomi_set_err_state(const char *reason)
++{
++	unsigned long flags;
++	int i;
++
++	spin_lock_irqsave(&ufs_data_lock, flags);
++	i = ufs_data.ufs_err_state.err_occurred % UFS_ERR_REASON_MAX;
++	strscpy(ufs_data.ufs_err_state.err_reason[i], reason, UFS_ERR_REASON_LEN);
++	ufs_data.ufs_err_state.err_occurred++;
++	spin_unlock_irqrestore(&ufs_data_lock, flags);
++}
++
++static void ufs_qcom_xiaomi_count_uic_err(struct ufs_qcom_host *host,
++					  enum ufs_event_type evt, u32 reg)
++{
++	struct ufs_uic_stats *st = &host->ufs_stats;
++	int i;
++
++	switch (evt) {
++	case UFS_EVT_PA_ERR:
++		st->pa_err_cnt_total++;
++		for (i = 0; i < UFS_EC_PA_MAX; i++)
++			if (reg & BIT(i))
++				st->pa_err_cnt[i]++;
++		ufs_qcom_xiaomi_set_err_state("pa_err");
++		break;
++	case UFS_EVT_DL_ERR:
++		st->dl_err_cnt_total++;
++		for (i = 0; i < UFS_EC_DL_MAX; i++)
++			if (reg & BIT(i))
++				st->dl_err_cnt[i]++;
++		ufs_qcom_xiaomi_set_err_state("dl_err");
++		break;
++	case UFS_EVT_DME_ERR:
++		st->dme_err_cnt++;
++		ufs_qcom_xiaomi_set_err_state("dme_err");
++		break;
++	case UFS_EVT_FATAL_ERR:
++		ufs_qcom_xiaomi_set_err_state("fatal_err");
++		break;
++	case UFS_EVT_LINK_STARTUP_FAIL:
++		ufs_qcom_xiaomi_set_err_state("link_startup_fail");
++		break;
++	case UFS_EVT_ABORT:
++		ufs_qcom_xiaomi_set_err_state("abort");
++		break;
++	default:
++		break;
++	}
++}
++
+ static void ufs_qcom_event_notify(struct ufs_hba *hba,
+ 								  enum ufs_event_type evt,
+ 								  void *data)
+@@ -4538,6 +4599,8 @@ static void ufs_qcom_event_notify(struct ufs_hba *hba,
+ 
+ 	if (evt_valid)
+ 		host->valid_evt_cnt[evt]++;
++
++	ufs_qcom_xiaomi_count_uic_err(host, evt, reg);
+ }
+ 
+ void ufs_qcom_print_hw_debug_reg_all(struct ufs_hba *hba,
+diff --git a/drivers/scsi/ufs/ufs-qcom.h b/drivers/scsi/ufs/ufs-qcom.h
+index a29d9554b..a06ec917e 100644
+--- a/drivers/scsi/ufs/ufs-qcom.h
++++ b/drivers/scsi/ufs/ufs-qcom.h
+@@ -496,6 +496,64 @@ struct ufs_qcom_regs {
+ 	size_t len;
+ };
+ 
++
++/*
++ * Xiaomi UFS diagnostics (sapphire): UIC error counters kept in
++ * ufs_qcom_host right after dev_req_params, and the error-state record
++ * returned by get_ufs_data(). Read by the Xiaomi mi_memory module.
++ */
++#define UFS_QCOM_XIAOMI_STATS	1
++
++enum ufshcd_ec_pa {
++	UFS_EC_PA_LANE_0,
++	UFS_EC_PA_LANE_1,
++	UFS_EC_PA_LANE_2,
++	UFS_EC_PA_LANE_3,
++	UFS_EC_PA_LINE_RESET,
++	UFS_EC_PA_MAX,
++};
++
++enum ufshcd_ec_dl {
++	UFS_EC_DL_NAC_RECEIVED,
++	UFS_EC_DL_TCx_REPLAY_TIMER_EXPIRED,
++	UFS_EC_DL_AFCx_REQUEST_TIMER_EXPIRED,
++	UFS_EC_DL_FCx_PROTECT_TIMER_EXPIRED,
++	UFS_EC_DL_CRC_ERROR,
++	UFS_EC_DL_RX_BUFFER_OVERFLOW,
++	UFS_EC_DL_MAX_FRAME_LENGTH_EXCEEDED,
++	UFS_EC_DL_WRONG_SEQUENCE_NUMBER,
++	UFS_EC_DL_AFC_FRAME_SYNTAX_ERROR,
++	UFS_EC_DL_NAC_FRAME_SYNTAX_ERROR,
++	UFS_EC_DL_EOF_SYNTAX_ERROR,
++	UFS_EC_DL_FRAME_SYNTAX_ERROR,
++	UFS_EC_DL_BAD_CTRL_SYMBOL_TYPE,
++	UFS_EC_DL_PA_INIT_ERROR,
++	UFS_EC_DL_PA_ERROR_IND_RECEIVED,
++	UFS_EC_DL_MAX,
++};
++
++struct ufs_uic_stats {
++	u32 pa_err_cnt_total;
++	u32 pa_err_cnt[UFS_EC_PA_MAX];
++	u32 dl_err_cnt_total;
++	u32 dl_err_cnt[UFS_EC_DL_MAX];
++	u32 dme_err_cnt;
++};
++
++#define UFS_ERR_REASON_MAX	10
++#define UFS_ERR_REASON_LEN	32
++
++struct UFS_ERR_STATE_DEBUG {
++	u64 err_occurred;
++	char err_reason[UFS_ERR_REASON_MAX][UFS_ERR_REASON_LEN];
++};
++
++struct UFS_DATA {
++	struct UFS_ERR_STATE_DEBUG ufs_err_state;
++};
++
++struct UFS_DATA *get_ufs_data(void);
++
+ struct ufs_qcom_host {
+ 	/*
+ 	 * Set this capability if host controller supports the QUniPro mode
+@@ -532,6 +590,8 @@ struct ufs_qcom_host {
+ 	struct ufs_hba *hba;
+ 	struct ufs_qcom_bus_vote bus_vote;
+ 	struct ufs_pa_layer_attr dev_req_params;
++	/* Xiaomi: must stay right after dev_req_params (read by mi_memory) */
++	struct ufs_uic_stats ufs_stats;
+ 	struct clk *rx_l0_sync_clk;
+ 	struct clk *tx_l0_sync_clk;
+ 	struct clk *rx_l1_sync_clk;
+-- 
+2.53.0
+

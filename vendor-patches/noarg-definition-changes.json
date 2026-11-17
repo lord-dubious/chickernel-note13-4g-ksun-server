@@ -1,0 +1,46 @@
+{
+  "qcom/opensource/audio-kernel/asoc/codecs/sipa/sipa_parameter.c": [
+    "const SIPA_PARAM *sipa_param_instance"
+  ],
+  "qcom/opensource/audio-kernel/asoc/holi.c": [
+    "static void msm_audio_add_qos_request",
+    "static void msm_audio_remove_qos_request"
+  ],
+  "qcom/opensource/audio-kernel/asoc/lahaina.c": [
+    "static void msm_audio_add_qos_request",
+    "static void msm_audio_remove_qos_request"
+  ],
+  "qcom/opensource/audio-kernel/asoc/msm-pcm-pcie.c": [
+    "static void msm_pcm_pcie_cancel_timers"
+  ],
+  "qcom/opensource/audio-kernel/asoc/sdx-target.c": [
+    "static void msm_audio_add_qos_request",
+    "static void msm_audio_remove_qos_request"
+  ],
+  "qcom/opensource/dataipa/drivers/platform/msm/ipa/ipa_v3/ipa_stats.c": [
+    "int ipa_tlpd_stats_init"
+  ],
+  "qcom/opensource/dataipa/drivers/platform/msm/ipa/ipa_v3/ipa_utils.c": [
+    "void start_coalescing",
+    "void stop_coalescing",
+    "bool lan_coal_enabled"
+  ],
+  "qcom/opensource/dataipa/drivers/platform/msm/ipa/test/ipa_test_ntn.c": [
+    "static void ipa_ntn_test_print_stats",
+    "static void ipa_ntn_test_del_client_list"
+  ],
+  "qcom/opensource/dataipa/ipanat/src/ipa_nat_statemach.c": [
+    "static int take_mutex",
+    "static int give_mutex"
+  ],
+  "qcom/opensource/dataipa/ipanat/test/ipa_nat_test.h": [
+    "static inline u32 rand_ip_addr",
+    "static inline u16 rand_ip_port"
+  ],
+  "qcom/opensource/video-driver/driver/vidc/src/msm_vidc_debug.c": [
+    "struct dentry* msm_vidc_debugfs_init_drv"
+  ],
+  "qcom/opensource/wlan/qcacld-3.0/components/pkt_capture/core/src/wlan_pkt_capture_main.c": [
+    "struct wlan_objmgr_vdev *pkt_capture_get_vdev"
+  ]
+}

@@ -1,0 +1,11 @@
+--- a/qcom/opensource/display-drivers/msm/mi_disp/mi_dsi_display.c
++++ b/qcom/opensource/display-drivers/msm/mi_disp/mi_dsi_display.c
+@@ -1182,7 +1182,7 @@
+ 	return rc;
+ }
+ 
+-bool mi_dsi_display_ramdump_support()
++bool mi_dsi_display_ramdump_support(void)
+ {
+ 	/* when debug policy is 0x0 or 0x20, full dump not supported */
+ 	if (strcmp(display_debug_policy, "0x0") != 0 && strcmp(display_debug_policy, "0x20") != 0)

@@ -1,0 +1,6 @@
+{
+  "repository": "https://github.com/Angelpro09xd/kernel_xiaomi_sapphire-Decompiled",
+  "analysis_commit": "36ed8cba50985404703bc1427f662700ed36587b",
+  "source_commit": "f0644b73acbde2daa272d304d65d79b517dd06f3",
+  "scope": "Module-only charger/gauge, IIO bindings, panel/thermal interface and USB PD policy. No CRC overrides or stock export tables imported. Upstream hardware claims not independently verified."
+}

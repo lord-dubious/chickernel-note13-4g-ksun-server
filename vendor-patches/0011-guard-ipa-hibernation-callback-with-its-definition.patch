@@ -1,0 +1,12 @@
+--- a/qcom/opensource/dataipa/drivers/platform/msm/ipa/ipa_v3/ipa.c
++++ b/qcom/opensource/dataipa/drivers/platform/msm/ipa/ipa_v3/ipa.c
+@@ -534,7 +534,9 @@
+ 
+ static const struct dev_pm_ops ipa_pm_ops = {
+ 	.suspend_late = ipa3_ap_suspend,
++#if IS_ENABLED(CONFIG_HIBERNATION)
+ 	.freeze_late = ipa3_ap_freeze,
++#endif
+ 	.resume_early = ipa3_ap_resume,
+ 	.restore_early = ipa3_ap_resume,
+ };

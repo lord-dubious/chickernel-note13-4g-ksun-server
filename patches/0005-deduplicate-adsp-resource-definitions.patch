@@ -1,0 +1,34 @@
+--- a/drivers/remoteproc/qcom_q6v5_pas.c
++++ b/drivers/remoteproc/qcom_q6v5_pas.c
+@@ -1513,30 +1513,7 @@
+ 	.ssctl_id = 0x14,
+ };
+ 
+-static const struct adsp_data bengal_adsp_resource = {
+-	.crash_reason_smem = 423,
+-	.firmware_name = "adsp.mdt",
+-	.pas_id = 1,
+-	.has_xo_clk = true,
+-	.minidump_id = 5,
+-	.uses_elf64 = false,
+-	.ssr_name = "lpass",
+-	.sysmon_name = "adsp",
+-	.ssctl_id = 0x14,
+-};
+-
+-static const struct adsp_data qcs605_adsp_resource = {
+-	.crash_reason_smem = 423,
+-	.firmware_name = "adsp.mdt",
+-	.pas_id = 1,
+-	.has_xo_clk = true,
+-	.minidump_id = 5,
+-	.uses_elf64 = false,
+-	.ssr_name = "lpass",
+-	.sysmon_name = "adsp",
+-	.qmp_name = "adsp",
+-	.ssctl_id = 0x14,
+-};
++
+ 
+ static const struct adsp_data msm8998_adsp_resource = {
+ 		.crash_reason_smem = 423,

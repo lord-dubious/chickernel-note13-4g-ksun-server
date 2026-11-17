@@ -1,0 +1,24 @@
+{
+  "repository": "https://github.com/The-Angel-Place-Sapphire/kernel_xiaomi_sapphire-modules",
+  "branch": "lineage-23.2",
+  "commit": "13ba671c779628ef64459609b80381e8c10a283e",
+  "patches": {
+    "vendor-patches/0001-match-display-ramdump-prototype.patch": "1cd16296232d5dadd4e14f2662623390be25f1590c6d23136a0ff00122f1c93a",
+    "vendor-patches/0002-declare-hw-item-dump-with-no-arguments.patch": "d3969f211c5fc8590fbbe3742b8f29ba0388aed6c1fd899a0d369e03d4844568",
+    "vendor-patches/0003-make-smcinvoke-trace-include-portable.patch": "a4f47200520a032b617ec99d6d50d07364569182d7b1d935fe5cfbba56e3ca9f",
+    "vendor-patches/0004-explicit-types-for-modern-clang.patch": "e1097ee50731d04f42a01a7bca2aa5c6aae9238caeb2e15893efd32059e0562f",
+    "vendor-patches/0005-portable-trace-paths-and-explicit-declarations.patch": "67f1afffeb99af07b0af59cd7ccbdf90e8477b2fa5344f74742e032a43a2ebb1",
+    "vendor-patches/0006-explicit-camera-video-and-ipa-function-types.patch": "5ba049af288af7b048afabb8a70dfa0b8f68c983c70902606d0b032a89afc0cc",
+    "vendor-patches/0007-declare-no-argument-definitions-explicitly.patch": "6393bc16fbecf1d959688b182e4812a7e48f808d64c1d962d6592c59526d3ed4",
+    "vendor-patches/0008-explicit-qmi-ipa-enum-boundary.patch": "27ac80f76d92ee11afa5e141f91f1beb561c2153fa829a838556e061378c28a5",
+    "vendor-patches/0011-guard-ipa-hibernation-callback-with-its-definition.patch": "9c863368f2e620ae547bb4ded1fb253b97c520aa54e341853e0dd331036e2e0b",
+    "vendor-patches/0012-format-rmnet-wlan-with-identical-c-tokens.patch": "e34cf593482cef764d1e3b61e730dd670285ad318b08088a6eb998f00b00c986"
+  },
+  "additional_sources": {
+    "mmrm-driver-test": {
+      "repository": "https://github.com/Kyuofox-Studio/vendor_qcom_opensource_mmrm-driver-test",
+      "branch": "topaz",
+      "commit": "5e5e099689db214795b00771e7715b7dbdc71b3c"
+    }
+  }
+}

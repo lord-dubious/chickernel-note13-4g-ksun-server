@@ -1,0 +1,32 @@
+--- a/drivers/pinctrl/qcom/pinctrl-msm.c
++++ b/drivers/pinctrl/qcom/pinctrl-msm.c
+@@ -1185,6 +1185,29 @@
+ 	       test_bit(d->hwirq, pctrl->skip_wake_irqs);
+ }
+ 
++static void msm_dirconn_cfg_reg(struct irq_data *d, u32 offset)
++{
++	u32 val;
++	const struct msm_pingroup *g;
++	unsigned long flags;
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct msm_pinctrl *pctrl = gpiochip_get_data(gc);
++
++	raw_spin_lock_irqsave(&pctrl->lock, flags);
++	g = &pctrl->soc->groups[d->hwirq];
++
++	val = (d->hwirq) & 0xFF;
++
++	writel_relaxed(val, pctrl->regs[g->tile] + g->dir_conn_reg
++					+ (offset * 4));
++
++	val = msm_readl_intr_cfg(pctrl, g);
++	val |= BIT(g->dir_conn_en_bit);
++
++	msm_writel_intr_cfg(val, pctrl, g);
++	raw_spin_unlock_irqrestore(&pctrl->lock, flags);
++}
++
+ static void msm_gpio_irq_init_valid_mask(struct gpio_chip *gc,
+ 					 unsigned long *valid_mask,
+ 					 unsigned int ngpios)

@@ -1,0 +1,45 @@
+From 45db93f6d4dfbbbb02568fa180ae6db516b22e72 Mon Sep 17 00:00:00 2001
+From: Angelpro09xd <167892325+Angelpro09xd@users.noreply.github.com>
+Date: Sun, 15 Nov 2026 11:27:19 +0100
+Subject: [PATCH 8/9] sapphire: q6v5_pas: no xo proxy clock for khaje
+ remoteprocs like stock
+
+The stock sapphire qcom_q6v5_pas.ko does not set has_xo_clk for the
+khaje ADSP, CDSP and modem resources.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ drivers/remoteproc/qcom_q6v5_pas.c | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/drivers/remoteproc/qcom_q6v5_pas.c b/drivers/remoteproc/qcom_q6v5_pas.c
+index e0a1365ce..654d2411a 100644
+--- a/drivers/remoteproc/qcom_q6v5_pas.c
++++ b/drivers/remoteproc/qcom_q6v5_pas.c
+@@ -1468,7 +1468,6 @@ static const struct adsp_data khaje_adsp_resource = {
+ 	.crash_reason_smem = 423,
+ 	.firmware_name = "adsp.mdt",
+ 	.pas_id = 1,
+-	.has_xo_clk = true,
+ 	.minidump_id = 5,
+ 	.uses_elf64 = false,
+ 	.ssr_name = "lpass",
+@@ -1648,7 +1647,6 @@ static const struct adsp_data khaje_cdsp_resource = {
+ 	.crash_reason_smem = 601,
+ 	.firmware_name = "cdsp.mdt",
+ 	.pas_id = 18,
+-	.has_xo_clk = true,
+ 	.minidump_id = 7,
+ 	.uses_elf64 = false,
+ 	.ssr_name = "cdsp",
+@@ -1782,7 +1780,6 @@ static const struct adsp_data khaje_mpss_resource = {
+ 	.free_after_auth_reset = true,
+ 	.minidump_id = 3,
+ 	.uses_elf64 = true,
+-	.has_xo_clk = true,
+ 	.ssr_name = "mpss",
+ 	.sysmon_name = "modem",
+ 	.ssctl_id = 0x12,
+-- 
+2.53.0
+
